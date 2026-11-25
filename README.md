@@ -8,7 +8,7 @@
 
 A local-first deployment simulation workbench for Linux.
 
-[![Version](https://img.shields.io/badge/version-v0.1.0-00696E?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v0.2.0-00696E?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-00696E?style=flat-square)](docs/engineering/toolchain.md)
 [![Licence](https://img.shields.io/badge/licence-GPL--3.0--or--later-8A5A00?style=flat-square)](LICENSE)
 [![Runtime](https://img.shields.io/badge/runtime-offline-1B7F4B?style=flat-square)](docs/architecture/overview.md)
@@ -20,14 +20,14 @@ container → deployment → logs and monitoring — without operating Docker, K
 reverse proxy, a real firewall, or any external service. Everything runs inside one desktop
 application process, on a deterministic virtual clock.
 
-> **Project status: `v0.1.0` implementation complete.** The deterministic core, SQLite
+> **Project status: `v0.2.0` release candidate.** The deterministic core, SQLite
 > storage, Flutter↔Rust bridge, and Linux desktop loop are implemented and tested. Local
 > AppImage and `.tar.gz` artifacts are built and verified; publishing is performed from a
 > tagged commit through GitHub Releases.
 
-| Get started | Learn more |
+| See | Do |
 | --- | --- |
-| [Installation](#installation) · [Quick start](#quick-start) · [Build from source](#build-from-source) | [What KONCET simulates](#what-koncet-simulates) · [Stack](#stack) · [Documentation](#documentation) |
+| [See it in action](#see-it-in-action) · [What you can do](#what-you-can-do) · [How it works](#how-it-works) | [Installation](#installation) · [Quick start](#quick-start) · [Build from source](#build-from-source) |
 
 ## Why KONCET
 
@@ -44,6 +44,54 @@ the full deployment loop observable, deterministic, and disposable.
   DevOps tool.
 - **Linux first.** Distributed as a desktop application from GitHub Releases.
 
+## See it in action
+
+<p align="center">
+  <img src="docs/assets/screenshots/04-live-server.png" alt="KONCET live run workspace showing the release conveyor, simulated host stack, and resource monitor" width="100%" />
+</p>
+<p align="center"><em>One operations board for the whole simulated release: build stages, image, container, proxy, health, and resource samples.</em></p>
+
+| Follow the route | Read the evidence |
+| :---: | :---: |
+| ![KONCET traffic path through browser, proxy, firewall, and service](docs/assets/screenshots/04b-traffic-path.png) <br><sub>Follow requests through the proxy and firewall. A blocked or degraded segment explains itself.</sub> | ![KONCET structured logs with level and source filters](docs/assets/screenshots/05-logs.png) <br><sub>Ordered, structured logs show exactly what changed and why.</sub> |
+| ![KONCET metrics dashboard with CPU, memory, network, and uptime](docs/assets/screenshots/06-metrics.png) <br><sub>CPU, memory, network RX/TX, restarts, and uptime are sampled deterministically.</sub> | ![KONCET run history with healthy, degraded, and failed runs](docs/assets/screenshots/07-run-history.png) <br><sub>Every run keeps its snapshot, command trace, result, and primary reason.</sub> |
+
+All screenshots come from the simulated app. No real Docker daemon, proxy, firewall,
+network listener, or cloud account is involved.
+
+## What you can do
+
+KONCET is built around the questions you ask during a real deployment:
+
+| Question | What KONCET gives you |
+| --- | --- |
+| **What is happening right now?** | A live operations board with the release conveyor, simulated host stack, route, health, and resource monitor. |
+| **Why did it fail?** | Build stage failures, restart exhaustion, firewall denials, proxy mistakes, health failures, and a primary reason with an explanation. |
+| **Can I reproduce it?** | A source snapshot, scenario revision, seed, and recorded command trace. The same inputs replay the same deterministic run. |
+| **What changed between runs?** | Immutable history with run status, result, duration, seed, logs, metrics, and the exact scenario snapshot. |
+| **Can I practise safely?** | Build failures, blocked ports, crash loops, and restarts are first-class presets. Nothing touches a real host. |
+| **Can I move quickly?** | Run at 1×, 2×, 4×, or 8×; pause, resume, restart, probe connectivity, and stop without waiting for real infrastructure. |
+| **Where does my data live?** | A local SQLite database under XDG data, with verified backups, retention, and diagnostics. No accounts, telemetry, or network calls. |
+
+<p align="center">
+  <img src="docs/assets/screenshots/02-project-overview.png" alt="KONCET project overview with scenarios, run starter, virtual source, and recent runs" width="100%" />
+</p>
+<p align="center"><em>Authoring stays close to the run: scenarios, the virtual source tree, and the primary Start run action live on one project page.</em></p>
+
+## How it works
+
+A run follows one deterministic loop:
+
+1. **Author** a project with a virtual source tree and a versioned scenario.
+2. **Start** a run. KONCET captures the source snapshot and scenario, resolves the seed, and records the run identity.
+3. **Simulate** the release through build stages, an immutable image, container/process lifecycle,
+   health checks, proxy/firewall probes, and metrics.
+4. **Observe** the live board, timeline, logs, metrics, and details panels, then stop and reopen the
+   run from history without re-running it.
+
+The engine is local Rust on a virtual clock. Flutter is the instrument panel. SQLite is the only
+persistent store. The source editor never compiles or executes your files.
+
 ## Installation
 
 KONCET ships as a self-contained Linux desktop application. The recommended path uses the
@@ -56,7 +104,7 @@ small user-local installer: no `sudo`, package repository, account, or daemon is
 | `install.sh` | One-command user-local install, desktop entry, and uninstall |
 
 Download the latest assets from the project's GitHub Releases page. The examples below use
-`v0.1.0`; substitute the version you downloaded.
+`v0.2.0`; substitute the version you downloaded.
 
 ### Requirements
 
@@ -72,7 +120,7 @@ Download the artifact, `install.sh`, and `SHA256SUMS`, then install into `~/.loc
 
 ```bash
 chmod +x install.sh
-./install.sh KONCET-0.1.0-linux-x86_64.AppImage
+./install.sh KONCET-0.2.0-linux-x86_64.AppImage
 
 # Launch by name from now on:
 koncet
@@ -94,7 +142,13 @@ Useful options:
 ./install.sh --prefix "$HOME/.local"       # choose another installation prefix
 ./install.sh --no-desktop                  # skip the application-menu entry
 ./install.sh --uninstall                   # remove the app; keep local data
+./install.sh --latest                      # download and install the latest public release
 ```
+
+`--latest` is the only installer mode that uses the network. It reads the latest public GitHub
+Release, downloads the AppImage and `SHA256SUMS`, verifies them, and then replaces the installed
+application. The running KONCET application itself remains completely offline. If the repository
+is still private or has no release yet, the installer stops with an actionable message.
 
 ### Option B — AppImage without the installer
 
@@ -103,14 +157,14 @@ Useful options:
 sha256sum -c SHA256SUMS --ignore-missing
 
 # 2. Make it executable and launch it.
-chmod +x KONCET-0.1.0-linux-x86_64.AppImage
-./KONCET-0.1.0-linux-x86_64.AppImage
+chmod +x KONCET-0.2.0-linux-x86_64.AppImage
+./KONCET-0.2.0-linux-x86_64.AppImage
 ```
 
 If FUSE is unavailable on your system:
 
 ```bash
-./KONCET-0.1.0-linux-x86_64.AppImage --appimage-extract-and-run
+./KONCET-0.2.0-linux-x86_64.AppImage --appimage-extract-and-run
 ```
 
 ### Option C — `.tar.gz` fallback
@@ -120,14 +174,14 @@ If FUSE is unavailable on your system:
 sha256sum -c SHA256SUMS --ignore-missing
 
 # 2. Extract and run from the bundle directory.
-tar -xzf KONCET-0.1.0-linux-x86_64.tar.gz
-./KONCET-0.1.0-linux-x86_64/koncet
+tar -xzf KONCET-0.2.0-linux-x86_64.tar.gz
+./KONCET-0.2.0-linux-x86_64/koncet
 ```
 
 Or install the extracted bundle with the same user-local installer:
 
 ```bash
-./install.sh --bundle KONCET-0.1.0-linux-x86_64
+./install.sh --bundle KONCET-0.2.0-linux-x86_64
 koncet
 ```
 
@@ -151,10 +205,23 @@ projects, scenarios, snapshots, runs, logs, metrics, settings, and backups.**
 
 ### Upgrading
 
-Run the new installer again for the AppImage or `.tar.gz`; it replaces the installed files while
-keeping local data. SQLite migrations run automatically at startup; a verified pre-migration
-backup is created before a non-empty database is migrated. An older application refuses a
-newer schema rather than downgrading it.
+Watch the repository with **Watch → Custom → Releases** to be notified when a new version is
+published. Then either:
+
+```bash
+# From the installer directory
+./install.sh --latest
+
+# Or download the new artifact and install it explicitly
+./install.sh KONCET-0.2.0-linux-x86_64.AppImage
+```
+
+The installer replaces the installed application while keeping local data. SQLite migrations
+run automatically at startup; a verified pre-migration backup is created before a non-empty
+database is migrated. An older application refuses a newer schema rather than downgrading it.
+
+GitHub Releases is the only official distribution channel. There is no in-app auto-updater and
+no background update check.
 
 ### Uninstalling
 
@@ -185,7 +252,7 @@ AppImage or extracted bundle manually, remove that file/directory instead.
 3. **Start a run**, then switch to `8×` speed to watch the deterministic build progress.
 4. Follow the **build pipeline**, image promotion, container start, health checks, and
    deployment status.
-5. Inspect **Timeline**, **Logs**, **Metrics**, and **Inspect** tabs while the run is active.
+5. Explore **Server**, **Timeline**, **Logs**, **Metrics**, and **Details** while the run is active.
 6. **Stop** the run, then reopen it from **Run history** to see the immutable snapshot and
    recorded command trace.
 
@@ -355,6 +422,7 @@ just package          # release artifacts
 | `just dart-analyze` | Analyze the Flutter app and design system |
 | `just dart-test` | Run Dart unit/controller/theme tests |
 | `just e2e` | Run the Linux desktop integration journey |
+| `just screenshots` | Seed demo runs and regenerate the README showcase at 1440×900 |
 | `just run` | Launch the app in development mode |
 | `just version-check` | Verify all manifests agree on `VERSION` |
 
@@ -374,6 +442,7 @@ KONCET/
 │   ├── koncet-app/        Use cases, orchestration, event fan-out
 │   └── koncet-ffi/        flutter_rust_bridge API surface
 ├── packages/koncet_ui/    Shared Material 3 design system
+├── .github/workflows/     Linux CI and tagged release automation
 ├── docs/                  Product, architecture, design, engineering, project
 ├── scripts/               Version, codegen, packaging, and SBOM tooling
 ├── run.sh                One-command source launcher

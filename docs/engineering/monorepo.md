@@ -23,6 +23,7 @@ KONCET/
 │   ├── koncet-storage/          SQLite migrations and repositories
 │   ├── koncet-app/              use cases, sessions, event fan-out
 │   └── koncet-ffi/              flutter_rust_bridge facade and cdylib
+├── .github/workflows/           Linux CI and tagged release automation
 ├── docs/                        source of truth for product and engineering
 ├── scripts/                     version sync, codegen, packaging, SBOM
 ├── Cargo.toml                   Rust workspace root
@@ -38,7 +39,7 @@ KONCET/
 └── SECURITY.md
 ```
 
-All workspaces above are implemented for `v0.1.0`. `apps/desktop` and `packages/koncet_ui` are
+All workspaces above are implemented for `v0.2.0`. `apps/desktop` and `packages/koncet_ui` are
 independent Dart packages linked by a path dependency; each keeps its own `pubspec.lock`. The
 Flutter release build compiles the `koncet-ffi` cdylib through CMake and bundles it under
 `lib/`.
@@ -99,7 +100,7 @@ Rules:
   - displayed build metadata if generated.
 - `scripts/check-version.sh` asserts every manifest equals `VERSION` and that a release tag
   matches exactly.
-- Publication is a **tag**, not a manifest change: `v0.1.0`, `v0.1.1`, `v0.2.0-rc.1`.
+- Publication is a **tag**, not a manifest change: `v0.2.0`, `v0.1.1`, `v0.2.0-rc.1`.
 - Internal crates and the UI package are never published independently.
 - Run metadata records app version, engine version (currently equal to product version),
   source commit, and schema versions.

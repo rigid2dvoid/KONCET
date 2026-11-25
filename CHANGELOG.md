@@ -5,7 +5,55 @@ All notable changes to KONCET are documented here. The format follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) with a single product
 version across the monorepo.
 
-## [0.1.0] — Not released
+## [0.2.0] — Not released
+
+### Added
+
+- Live operations board: release conveyor, simulated host stack, animated traffic path,
+  resource monitor, and activity feed derived from committed run state.
+- Project overview now keeps scenarios, the primary Start run action, virtual source, and recent
+  runs close together; duplicate per-scenario Run buttons were removed.
+- Repeatable screenshot harness (`just screenshots`) and README showcase assets at 1440×900.
+- One-command source launcher (`run.sh`) and user-local installer (`install.sh`) with desktop
+  entry, icon, checksum verification, and uninstall support.
+- Optional `install.sh --latest` upgrade path from public GitHub Releases. The running app stays
+  offline; network access happens only when the installer is explicitly asked to update.
+- Build metadata (version, commit, date) in Settings and diagnostics.
+- GitHub Actions workflows for Linux quality gates and tagged release packaging.
+
+### Changed
+
+- Product version advanced to `0.2.0`; generated bridge and release artifacts were rebuilt.
+- Scenario lists keep the baseline first, and new HTTP-service projects describe their actual
+  profile.
+- Live runs show “In progress” instead of an unknown result, and uptime comes from simulation
+  metrics rather than the final-only summary.
+- Metric chart axes were cleaned up for readability.
+- Release builds refuse a dirty working tree unless `KONCET_ALLOW_DIRTY=1` is explicitly set.
+
+### Fixed
+
+- Settings and project layouts stay readable at the supported 1024×720 minimum width.
+- The installed desktop entry no longer points at a stale build after reinstalling from a newer
+  release.
+
+### Documentation
+
+- Benefit-first README with real UI screenshots, scope, installation, upgrading, and update
+  guidance.
+- Scenario schema, screen flows, design system, toolchain, testing, release, and phase status
+  aligned with the implemented `0.2.0` build.
+
+### Known issues
+
+- GitHub tag and release are not created in this workspace; publish from a clean tagged commit.
+- Distribution QA on the full Linux matrix and the offline syscall proof remain release gates.
+- Local artifacts were built on a newer baseline than Ubuntu 22.04; the release workflow rebuilds
+  on the documented Ubuntu 22.04 runner.
+- The in-app scenario editor covers the main fields plus a canonical JSON preview; it does not
+  yet expose a raw JSON editing mode.
+
+## [0.1.0] — Superseded before public release
 
 ### Added
 
@@ -19,15 +67,11 @@ version across the monorepo.
   settings, backups, and diagnostics.
 - `flutter_rust_bridge` v2 surface with stable DTOs, typed errors, session/log/metric streams,
   panic containment, and a 100 ms ticker that persists before publishing.
-- Flutter Linux desktop app: Material 3 design system, bundled Inter/JetBrains Mono, project
-  flow, source editor with autosave, scenario editor, live run workspace, history, settings,
-  recovery screen, quit confirmation, and window geometry persistence.
-- One-command source launcher (`run.sh`) and user-local installer (`install.sh`) with desktop
-  entry, icon, checksum verification, and uninstall support.
+- Initial Flutter Linux desktop app with Material 3 design system, bundled Inter/JetBrains Mono,
+  project flow, source editor with autosave, scenario editor, live run workspace, history,
+  settings, recovery screen, quit confirmation, and window geometry persistence.
 - Version, codegen, test, release, packaging, checksum, notices, and SBOM tooling (`VERSION`,
   `justfile`, `scripts/`).
-- Local release artifacts verified: AppImage, `.tar.gz`, `SHA256SUMS`, CycloneDX SBOM, GPL and
-  font licence texts, third-party notices.
 
 ### Documentation
 
@@ -38,12 +82,3 @@ version across the monorepo.
 - Monorepo, development workflow, testing, and release planning.
 - Scenario schema and event catalogue references.
 - GPL-3.0-or-later licensing and repository governance documents.
-
-### Known issues — v0.1.0
-
-- GitHub tag and release are not created in this workspace; publish from a clean tagged commit.
-- Distribution QA on the full Linux matrix and the offline syscall proof remain release gates.
-- Local artifacts were built on a newer baseline than Ubuntu 22.04; the release job must rebuild
-  from the tagged commit on the documented Ubuntu 22.04 environment before publishing.
-- The in-app scenario editor covers the main fields plus a canonical JSON preview; it does not
-  yet expose a raw JSON editing mode.

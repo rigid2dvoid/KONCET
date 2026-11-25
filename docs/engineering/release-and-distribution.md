@@ -1,7 +1,7 @@
 # Release and Distribution
 
-> **Status:** Baseline · **Applies to:** `v0.1.0` and later  
-> **Last updated:** 2026-11-24  
+> **Status:** Baseline · **Applies to:** `v0.2.0` and later
+> **Last updated:** 2026-11-24
 > **Related:** [ADR-0007](../architecture/adr/0007-gpl-3.0-or-later.md) · [ADR-0008](../architecture/adr/0008-github-only-distribution.md) · [Monorepo](monorepo.md)
 
 ## 1. Release model
@@ -34,7 +34,7 @@ versions carry the suffix consistently in all manifests.
 | --- | --- |
 | `KONCET-<version>-linux-x86_64.AppImage` | Primary portable application |
 | `KONCET-<version>-linux-x86_64.tar.gz` | Fallback bundle for FUSE-restricted systems |
-| `install.sh` | User-local installer, desktop entry, and uninstaller |
+| `install.sh` | User-local installer, desktop entry, uninstaller, and opt-in `--latest` updater |
 | `SHA256SUMS` | Integrity verification |
 | `KONCET-<version>-sbom.cdx.json` | Dependency inventory (CycloneDX) |
 | `THIRD_PARTY_NOTICES.md` | Licence obligations |
@@ -62,7 +62,7 @@ All must pass:
 13. No P0/P1 defects open; security advisories triaged.
 14. Release notes describe user-visible changes, migration notes, and limitations.
 
-## 5. Build procedure (planned)
+## 5. Build procedure
 
 ```text
 1. just check                         # local parity with CI
@@ -70,8 +70,8 @@ All must pass:
 3. just build-release                 # Flutter Linux release + Rust cdylib
 4. just package                       # AppImage + tar.gz + notices + SBOM
 5. just verify-artifacts              # sha256, launch smoke, permission audit
-6. git tag -s vX.Y.Z && git push --tags
-7. CI release job builds from the tag, repeats gates, uploads assets
+6. git tag -a vX.Y.Z -m "KONCET vX.Y.Z" && git push --tags
+7. GitHub Actions release workflow builds from the tag, repeats gates, uploads assets
 8. Create GitHub Release with notes, checksums, SBOM, notices; mark pre-release if -rc
 ```
 
@@ -83,6 +83,8 @@ Packaging rules:
 - AppImage desktop entry: name KONCET, category Development, icon installed at 256×256.
 - `install.sh` installs under `~/.local` without `sudo`, verifies `SHA256SUMS`, writes a
   desktop entry, and supports `--uninstall`. It must not modify application data.
+- `install.sh --latest` may download a public GitHub release when explicitly requested;
+  the running application never performs network access.
 - `--appimage-extract-and-run` documented for FUSE-less environments.
 - Build number metadata includes tag and commit; no dirty builds are released.
 
@@ -91,7 +93,8 @@ Packaging rules:
 - Publish `SHA256SUMS` and include verification commands in the release notes.
 - Prefer GitHub artifact attestations/build provenance for CI-produced assets.
 - A detached GPG signature may be added when a stable maintainer key exists; it is not required
-  for `v0.1.0`.
+  for `v0.2.0`. Checksums and GitHub HTTPS are the baseline, with artifact attestations preferred
+  once the release workflow is public.
 - Users are instructed to download only from the official GitHub Releases page.
 - Third-party notices and the GPL source link are mandatory on every release.
 

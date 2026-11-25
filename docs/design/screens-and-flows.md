@@ -12,24 +12,24 @@ flowchart LR
     Root --> Projects["Projects"]
     Root --> History["Run history"]
     Root --> Settings["Settings"]
-    Projects --> Project["Project"]
-    Project --> Overview["Overview"]
-    Project --> Source["Source"]
-    Project --> Scenarios["Scenarios"]
-    Project --> Runs["Project runs"]
+    Projects --> Project["Project overview"]
+    Project --> Source["Source editor"]
+    Project --> Scenarios["Scenario editor"]
+    Project --> Runs["Recent runs"]
     Runs --> Run["Run workspace"]
-    Run --> RunOverview["Overview"]
-    Run --> Build["Build & image"]
-    Run --> Runtime["Runtime"]
-    Run --> Network["Network"]
+    Run --> Server["Server"]
+    Run --> Timeline["Timeline"]
     Run --> Logs["Logs"]
     Run --> Metrics["Metrics"]
+    Run --> Details["Details"]
     History --> Historical["Read-only run"]
 ```
 
-Global navigation rail: **Projects**, **Run history**, **Settings**. The project-scoped tabs
-are **Overview**, **Source**, **Scenarios**, **Runs**. The run workspace has its own persistent
-header and six tabs. The active-run indicator appears in the rail and top bar from anywhere.
+Global navigation rail: **Projects**, **Run history**, **Settings**. The project overview
+contains scenarios, the primary Start run action, the virtual source tree, and recent runs.
+The source and scenario editors are separate routes. The run workspace has a persistent session
+header and five tabs: **Server**, **Timeline**, **Logs**, **Metrics**, **Details**. The
+active-run indicator appears in the top bar from anywhere.
 
 ## 2. App shell
 
@@ -182,7 +182,7 @@ reused; historical mode hides mutation controls.
 │ Build pipeline (always visible)        │  Deployment summary                        │
 │ ✓ Validate  ✓ Prepare  ● Build  ○ …    │  image tag, route, uptime, restarts        │
 ├───────────────────────────────────────────────────────────────────────────────────────┤
-│ Timeline        Logs        Metrics        Inspect                                    │
+│ Server        Timeline        Logs        Metrics        Details                      │
 └───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -196,33 +196,48 @@ reused; historical mode hides mutation controls.
 
 ### 8.2 Persistent summary
 
-The run header and the build/deployment summary stay visible across tabs:
+The session header stays visible across tabs:
 
 1. Status, result, simulation clock, speed, seed, app/engine versions.
 2. Primary reason callout when the run is degraded, failed, or cancelled.
-3. Four-stage pipeline with planned/actual durations and failure text.
-4. Deployment summary with image reference, simulated hostname, uptime, container state, and
-   restart count. `Inspect` expands the full image, container, process, command trace, and run
-   identity.
+3. The `Server` tab carries the release conveyor, host stack, traffic route, resource monitor,
+   and latest activity. The top bar keeps the active-run indicator and clock.
 
 Build failure shows no fake endpoint: the reason callout names the failing stage and the
-pipeline marks later stages skipped.
+conveyor marks later stages skipped.
 
-### 8.3 Timeline
+### 8.3 Server
+
+The default run tab is a schematic operations board, not a recreation of a real server:
+
+- **Release conveyor** — Validate → Prepare → Build → Package → Image → Container → Deployment,
+  with status lights and simulated durations.
+- **Host stack** — numbered slots for proxy, service, deployment, and observability. Each slot
+  shows status, image reference, route, and the latest sample count.
+- **Traffic path** — browser → Nginx → firewall → application → health, with moving request
+  dots when the run is live. Blocked or degraded segments carry the primary reason.
+- **Resource monitor** — compact CPU, memory, network RX/TX sparklines from container samples.
+- **Live activity** — newest events with simulation time and severity.
+
+The board is presentation-only: it derives labels and colours from committed run state and
+never invents a real process, socket, or route. Reduced-motion settings stop the dots; pausing
+or finalising the run does the same.
+
+### 8.4 Timeline
 
 - Newest-first ordered events with severity icon, simulation time, event type, source, and
   sequence number.
 - Search over type/payload; debug events hidden by default.
 - Expanding an event shows its canonical JSON payload. Unknown event types render generically.
 
-### 8.4 Logs
+### 8.5 Logs
 
 - Monospace, virtualised list with simulation timestamp, source, and message.
 - Filter by level and source; bounded search; follow mode (default on) and line counts.
 - Live logs are display-only, never reorder, and are deduplicated by sequence. The in-memory
   view keeps the most recent 5,000 lines; the database retains up to the engine cap.
 
-### 8.5 Metrics
+### 8.6 Metrics
 
 - Latest container/deployment values as compact tiles.
 - One line chart per metric series with time on the x-axis, units on the y-axis, and a textual
@@ -230,7 +245,7 @@ pipeline marks later stages skipped.
   on hue alone.
 - Empty state before the first monitoring sample.
 
-### 8.6 Inspect
+### 8.7 Details
 
 - Simulated image reference, digest, profile, size, source hash, and ordered layers.
 - Container/process state, image ID, service port, CPU/memory limits, restart policy, health
@@ -239,7 +254,7 @@ pipeline marks later stages skipped.
 - Run identity: run/project/scenario/snapshot IDs, seed, timestamps, schema and event sequence.
 - Read-only scenario snapshot JSON.
 
-### 8.7 Network observations
+### 8.8 Network observations
 
 The proxy route and firewall consequences are observed through timeline events
 (`proxy.*`, `firewall.*`), the deployment reason callout, and **Check connectivity** in the
@@ -247,7 +262,7 @@ run actions menu. `v0.1` does not have a separate Network tab or route diagram; 
 follow-up and must preserve the same simulation semantics. All hostnames/ports are marked
 simulated; there is no “Open in browser” action in `v0.1`.
 
-### 8.8 Run completion
+### 8.9 Run completion
 
 On terminal state, header switches to result (`HEALTHY`, `DEGRADED`, `BUILD FAILED`, …), controls
 disable, and a summary sheet appears inline:

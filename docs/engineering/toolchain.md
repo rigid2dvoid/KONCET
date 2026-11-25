@@ -1,12 +1,12 @@
 # Toolchain Versions
 
-> **Status:** Verified locally · **Applies to:** `v0.1.0`  
-> **Last updated:** 2026-11-24  
+> **Status:** Verified locally · **Applies to:** `v0.2.0`
+> **Last updated:** 2026-11-24
 > **Related:** [Development workflow](development-workflow.md) · [Monorepo](monorepo.md)
 
 ## 1. Verified versions
 
-| Tool | Version used for `v0.1.0` verification |
+| Tool | Version used for `v0.2.0` verification |
 | --- | --- |
 | Flutter | 3.50.1 stable |
 | Dart | 3.14.0 |

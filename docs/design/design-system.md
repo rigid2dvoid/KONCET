@@ -148,6 +148,11 @@ Use standard Material easing; no springy overshoot in operational surfaces. Resp
 `MediaQuery.disableAnimations`. Live logs and charts update without entrance animations.
 Speed changes of the simulation clock are discrete and labelled, not animated numbers.
 
+Simulation-derived motion — pipeline pulses, request dots, and host status breathing — follows
+the virtual clock. It pauses when the run is paused or finalised, and becomes static when
+reduced motion is enabled. Motion never carries information that is absent from the label,
+badge, or transcript.
+
 ## 8. Layout system
 
 - Desktop-first, single window. Minimum 1024×720; reference 1440×900.
@@ -188,6 +193,7 @@ variants in screens.
 | `KoncetReasonCallout` | Primary reason plus actionable explanation |
 | `KoncetConfirmDialog` | Destructive confirmation with consequence copy |
 | `KoncetValidationMessage` | Field/path-linked inline error |
+| `KoncetOperationsBoard` (app-composed) | Simulated host schematic: conveyor, host slots, route, resources, activity |
 
 Status→visual mapping is centralised once. Components accept a semantic status enum, not
 arbitrary colours.

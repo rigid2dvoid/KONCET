@@ -1,4 +1,4 @@
-# Phase 1 Implementation Plan — `v0.1.0`
+# Phase 1 Implementation Plan — `v0.2.0`
 
 > **Status:** Baseline · **Last updated:** 2026-11-24  
 > **Related:** [PRD](../product/prd.md) · [Roadmap](../product/roadmap.md) · [Testing](../engineering/testing-strategy.md) · [Release](../engineering/release-and-distribution.md)
@@ -139,7 +139,7 @@ and documentation are satisfied. No milestone is skipped to make a demo look com
 - No P0/P1 defects; P2s documented with workarounds.
 - Recovery and second-instance paths verified.
 
-### M5 — Release `v0.1.0`
+### M5 — Release `v0.2.0`
 
 **Goal:** Publish a verified GitHub-only release.
 
@@ -147,7 +147,7 @@ and documentation are satisfied. No milestone is skipped to make a demo look com
 
 - Version sync, changelog, release notes, known issues, upgrade/rollback notes.
 - AppImage, tar.gz, `SHA256SUMS`, SBOM, third-party notices.
-- Tag `v0.1.0` built from a clean commit; artifacts verified on a clean machine.
+- Tag `v0.2.0` built from a clean commit; artifacts verified on a clean machine.
 - GitHub Release published with GPL source link and verification instructions.
 - Retrospective recorded; follow-up issues triaged.
 
@@ -242,8 +242,8 @@ When scaffolding starts:
 | M0 Blueprint | Complete | Documentation, ADRs, schemas, and governance reviewed internally. |
 | M1 Walking skeleton | Complete | Cargo workspace, Flutter Linux app, FRB bridge, SQLite migration, startup/recovery, `VERSION`, `justfile`, scripts, committed generated bindings. |
 | M2 Deterministic core | Complete | Domain/storage/sim/app tests; preset golden runs; reconciliation, backup, and schema constraint tests; architecture guards against I/O in domain/sim. |
-| M3 Product loop | Complete | Projects, source editor with autosave, scenario editor/presets, live run workspace with timeline/logs/metrics/inspect, history, settings, recovery, quit confirmation; Linux integration journey passes. |
-| M4 Hardening | Substantially complete | 60+ Rust tests, Dart unit/controller tests, end-to-end integration test, corruption/lock/backup/recovery tests, fonts and licences bundled, offline architecture guards. Remaining: multi-distribution matrix and full accessibility review evidence. |
+| M3 Product loop | Complete | Projects, source editor with autosave, scenario editor/presets, live run workspace with an operations board, timeline/logs/metrics/details, history, settings, recovery, quit confirmation; Linux integration journey passes. |
+| M4 Hardening | Substantially complete | 60+ Rust tests, Dart unit/controller tests, end-to-end integration test, repeatable 1440×900 screenshot harness, corruption/lock/backup/recovery tests, fonts and licences bundled, offline architecture guards. Remaining: multi-distribution matrix and full accessibility review evidence. |
 | M5 Release | Prepared locally | Release bundle, AppImage, `.tar.gz`, `SHA256SUMS`, CycloneDX SBOM, notices, and licence files generated and checksum-verified. GitHub tag/release not created in this environment. |
 
 Known follow-ups for the release branch:
@@ -254,4 +254,4 @@ Known follow-ups for the release branch:
 - Complete the offline syscall proof and dependency-licence audit in CI.
 - Add canonical golden JSON fixtures and `proptest` coverage before the public tag; current
   determinism coverage uses equality and invariant tests.
-- Tag and sign `v0.1.0` only from a clean, reviewed commit.
+- Tag `v0.2.0` only from a clean, reviewed commit; signing is optional.

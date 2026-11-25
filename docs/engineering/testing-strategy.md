@@ -1,7 +1,7 @@
 # Testing Strategy
 
-> **Status:** Baseline · **Applies to:** `v0.1.0`  
-> **Last updated:** 2026-11-24  
+> **Status:** Baseline · **Applies to:** `v0.2.0`
+> **Last updated:** 2026-11-24
 > **Related:** [Development workflow](development-workflow.md) · [Simulation engine](../architecture/simulation-engine.md) · [Phase 1 plan](../project/phase-1-plan.md)
 
 ## 1. Principles
@@ -180,7 +180,7 @@ Until CI exists, the same `just` recipes are the local gate; no release is made 
 - No network at runtime; no unexpected writes outside XDG dirs.
 - Keyboard-only main journey; screen-reader smoke test where tooling permits.
 
-## 10. `v0.1.0` implementation status
+## 10. `v0.2.0` implementation status
 
 Implemented and runnable:
 
@@ -191,7 +191,9 @@ Implemented and runnable:
   source for filesystem/network/process APIs.
 - Dart: theme/component tests, formatting/status mapping tests, an active-run controller test
   with fake streams, and a Linux integration journey covering project creation, source editor,
-  scenario editor, live run to healthy, stop, history, inspect, and settings.
+  scenario editor, live run to healthy, stop, history, details, and settings.
+- A separate screenshot harness seeds representative healthy, failed, degraded, and crashed
+  runs and captures the README showcase from the real Flutter render tree at 1440×900.
 - Release: local AppImage and `.tar.gz` built, checksum-verified, and launched; SBOM, notices,
   GPL and font licences included.
 
