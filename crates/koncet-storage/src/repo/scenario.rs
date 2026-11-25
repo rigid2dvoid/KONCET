@@ -118,7 +118,7 @@ impl Database {
         let mut statement = self.conn().prepare(
             "SELECT id, project_id, name, description, schema_version, revision, created_at, updated_at
              FROM scenarios WHERE project_id = ?1
-             ORDER BY updated_at DESC, id DESC LIMIT ?2",
+             ORDER BY created_at ASC, id ASC LIMIT ?2",
         )?;
         let rows =
             statement.query_map(params![project_id.to_string(), clamp_limit(limit)], |row| {

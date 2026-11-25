@@ -69,6 +69,11 @@ impl App {
         let now = self.clock.now();
         let mut scenario = preset.scenario();
         scenario.build.profile = profile_for(detail.project.template_id);
+        if detail.project.template_id == koncet_domain::ProjectTemplate::HttpService
+            && preset == ScenarioPreset::HappyPath
+        {
+            scenario.description = "Build and expose one simulated HTTP service.".to_string();
+        }
         let desired = name
             .map(|name| name.trim().to_string())
             .filter(|name| !name.is_empty())

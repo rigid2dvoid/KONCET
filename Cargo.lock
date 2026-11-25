@@ -465,7 +465,7 @@ dependencies = [
 
 [[package]]
 name = "koncet-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "koncet-domain",
  "koncet-sim",
@@ -478,7 +478,7 @@ dependencies = [
 
 [[package]]
 name = "koncet-domain"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -488,7 +488,7 @@ dependencies = [
 
 [[package]]
 name = "koncet-ffi"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "flutter_rust_bridge",
@@ -502,7 +502,7 @@ dependencies = [
 
 [[package]]
 name = "koncet-sim"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "koncet-domain",
  "rand",
@@ -515,7 +515,7 @@ dependencies = [
 
 [[package]]
 name = "koncet-storage"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "koncet-domain",
  "koncet-sim",

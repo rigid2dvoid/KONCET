@@ -167,7 +167,10 @@ class _SeriesChart extends StatelessWidget {
       minY = (minY - padding).clamp(0, double.infinity);
       maxY += padding;
     }
-    final interval = (maxX - minX) / 4;
+    final interval = ((maxX - minX) / 4)
+        .ceilToDouble()
+        .clamp(1, double.infinity)
+        .toDouble();
 
     return Card(
       child: Padding(
@@ -220,6 +223,9 @@ class _SeriesChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 44,
+                        minIncluded: false,
+                        maxIncluded: false,
+                        interval: (maxY - minY) / 4,
                         getTitlesWidget: (value, meta) => Text(
                           _axisValue(name, value),
                           style: theme.textTheme.bodySmall,
@@ -230,7 +236,9 @@ class _SeriesChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 24,
-                        interval: interval <= 0 ? 1 : interval,
+                        minIncluded: false,
+                        maxIncluded: false,
+                        interval: interval,
                         getTitlesWidget: (value, meta) => Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(

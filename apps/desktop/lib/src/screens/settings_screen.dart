@@ -84,12 +84,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                           ),
                           SizedBox(
-                            width: 260,
+                            width: 320,
                             child: SwitchListTile(
                               contentPadding: EdgeInsets.zero,
                               title: const Text('Reduce motion'),
                               subtitle: const Text(
-                                'Prefer no optional transitions. System reduced-motion is always respected.',
+                                'Minimize optional transitions.',
                               ),
                               value: current.reduceMotion,
                               onChanged: (value) => ref
@@ -163,49 +163,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           runSpacing: 10,
                           children: [
                             SizedBox(
-                              width: 160,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Database',
                                 value: formatBytes(value.databaseBytes),
                               ),
                             ),
                             SizedBox(
-                              width: 160,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Backups',
                                 value: formatBytes(value.backupBytes),
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Projects',
                                 value: '${value.projectCount}',
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Runs',
                                 value: '${value.runCount}',
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Events',
                                 value: '${value.eventCount}',
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Logs',
                                 value: '${value.logCount}',
                               ),
                             ),
                             SizedBox(
-                              width: 150,
+                              width: 148,
                               child: KoncetMetricTile(
                                 label: 'Metrics',
                                 value: '${value.metricCount}',
@@ -274,9 +274,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       KoncetInfoRow(
                         label: 'KONCET',
+                        value: info == null ? 'Loading…' : info.appVersion,
+                        mono: true,
+                      ),
+                      KoncetInfoRow(
+                        label: 'Build',
                         value: info == null
-                            ? 'Loading…'
-                            : '${info.appVersion} · ${info.buildCommit}',
+                            ? '—'
+                            : '${info.buildCommit} · ${info.buildDate}',
                         mono: true,
                       ),
                       KoncetInfoRow(
@@ -412,7 +417,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final diagnostics = await ref.read(apiProvider).getDiagnosticsInfo();
       final text = [
         'KONCET diagnostics',
-        'app: ${diagnostics.app.appVersion} (${diagnostics.app.buildCommit})',
+        'app: ${diagnostics.app.appVersion} (${diagnostics.app.buildCommit}, ${diagnostics.app.buildDate})',
         'engine: ${diagnostics.app.engineVersion}',
         'schema: ${diagnostics.app.schemaVersion}',
         'platform: ${diagnostics.app.platform}',
@@ -464,7 +469,7 @@ class _BackupRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 150,
+            width: 148,
             child: Text(
               formatTimestamp(backup.createdAtMs),
               style: theme.textTheme.bodySmall,

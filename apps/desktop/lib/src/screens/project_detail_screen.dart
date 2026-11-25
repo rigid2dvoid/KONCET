@@ -128,12 +128,51 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    _ScenariosCard(
+                      projectId: widget.projectId,
+                      scenarios: items,
+                      loading: scenarios.isLoading,
+                      disabled: archived || activeForProject,
+                      selectedId: selectedId,
+                      onSelect: (id) =>
+                          setState(() => _selectedScenarioId = id),
+                      onOpen: (id) => context.go(
+                        '/projects/${widget.projectId}/scenarios/$id',
+                      ),
+                      onChanged: _refreshScenarios,
+                    ),
+                    const SizedBox(height: 16),
                     KoncetSectionCard(
-                      title: 'Start a simulation',
-                      description: 'A run captures the current source and scenario as an immutable snapshot. Nothing leaves this machine.',
+                      title: 'Start a run',
+                      description: 'The selected scenario and current source become an immutable snapshot. Nothing leaves this machine.',
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          if (selectedId == null)
+                            Text(
+                              'Create a scenario below before starting a run.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            )
+                          else
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.play_circle_outline,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Selected scenario: ${items.where((scenario) => scenario.id == selectedId).firstOrNull?.name ?? 'Unknown'}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 12),
                           Wrap(
                             spacing: 12,
                             runSpacing: 12,
@@ -159,12 +198,13 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                                 ),
                               ),
                               SizedBox(
-                                width: 260,
+                                width: 280,
                                 child: TextField(
                                   controller: _seed,
                                   decoration: const InputDecoration(
                                     labelText: 'Seed override (optional)',
                                     hintText: 'Decimal, up to 63 bits',
+                                    helperText: 'Optional. Reuse a seed to replay the run.',
                                   ),
                                 ),
                               ),
@@ -181,6 +221,13 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                               ),
                             ],
                           ),
+                          if (activeForProject) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'A run is already active for this project. Open it from the callout above.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                           if (_issues.isNotEmpty) ...[
                             const SizedBox(height: 10),
                             for (final issue in _issues)
@@ -192,21 +239,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                           ],
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    _ScenariosCard(
-                      projectId: widget.projectId,
-                      scenarios: items,
-                      loading: scenarios.isLoading,
-                      disabled: archived || activeForProject,
-                      selectedId: selectedId,
-                      onSelect: (id) =>
-                          setState(() => _selectedScenarioId = id),
-                      onOpen: (id) => context.go(
-                        '/projects/${widget.projectId}/scenarios/$id',
-                      ),
-                      onRun: _start,
-                      onChanged: _refreshScenarios,
                     ),
                     const SizedBox(height: 16),
                     KoncetSectionCard(
@@ -274,8 +306,37 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                     ),
                     const SizedBox(height: 16),
                     KoncetSectionCard(
+                      title: 'Recent runs',
+                      actions: [
+                        KoncetButton(
+                          label: 'All history',
+                          variant: KoncetButtonVariant.tertiary,
+                          onPressed: () => context.go('/runs'),
+                        ),
+                      ],
+                      child: recentRuns.when(
+                        loading: () => const LinearProgressIndicator(),
+                        error: (error, stack) => Text('$error'),
+                        data: (runs) => runs.isEmpty
+                            ? Text(
+                                'No runs yet. Start a run above.',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              )
+                            : Column(
+                                children: [
+                                  for (final run in runs)
+                                    _RecentRunRow(run: run),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    KoncetSectionCard(
                       title: 'Project information',
-                      child: Column(
+                      child: ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: const EdgeInsets.only(top: 4),
+                        title: const Text('Metadata and identifiers'),
                         children: [
                           KoncetInfoRow(
                             label: 'Template',
@@ -298,31 +359,6 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    KoncetSectionCard(
-                      title: 'Recent runs',
-                      actions: [
-                        KoncetButton(
-                          label: 'All history',
-                          variant: KoncetButtonVariant.tertiary,
-                          onPressed: () => context.go('/runs'),
-                        ),
-                      ],
-                      child: recentRuns.when(
-                        loading: () => const LinearProgressIndicator(),
-                        error: (error, stack) => Text('$error'),
-                        data: (runs) => runs.isEmpty
-                            ? Text(
-                                'No runs yet. Start a simulation above.',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              )
-                            : Column(
-                                children: [
-                                  for (final run in runs)
-                                    _RecentRunRow(run: run),
-                                ],
-                              ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -489,7 +525,6 @@ class _ScenariosCard extends ConsumerWidget {
     required this.selectedId,
     required this.onSelect,
     required this.onOpen,
-    required this.onRun,
     required this.onChanged,
   });
 
@@ -500,7 +535,6 @@ class _ScenariosCard extends ConsumerWidget {
   final String? selectedId;
   final ValueChanged<String> onSelect;
   final ValueChanged<String> onOpen;
-  final ValueChanged<String> onRun;
   final VoidCallback onChanged;
 
   @override
@@ -529,7 +563,6 @@ class _ScenariosCard extends ConsumerWidget {
                     disabled: disabled,
                     onSelect: () => onSelect(scenario.id),
                     onOpen: () => onOpen(scenario.id),
-                    onRun: () => onRun(scenario.id),
                     onDuplicate: () => _duplicate(context, ref, scenario),
                     onDelete: () => _delete(context, ref, scenario),
                   ),
@@ -618,7 +651,6 @@ class _ScenarioRow extends StatelessWidget {
     required this.disabled,
     required this.onSelect,
     required this.onOpen,
-    required this.onRun,
     required this.onDuplicate,
     required this.onDelete,
   });
@@ -628,7 +660,6 @@ class _ScenarioRow extends StatelessWidget {
   final bool disabled;
   final VoidCallback onSelect;
   final VoidCallback onOpen;
-  final VoidCallback onRun;
   final VoidCallback onDuplicate;
   final VoidCallback onDelete;
 
@@ -647,14 +678,21 @@ class _ScenarioRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            selected
-                ? Icons.radio_button_checked
-                : Icons.radio_button_unchecked,
-            size: 18,
-            color: selected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.onSurfaceVariant,
+          InkResponse(
+            onTap: onSelect,
+            radius: 18,
+            child: Tooltip(
+              message: 'Select scenario',
+              child: Icon(
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 18,
+                color: selected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -677,11 +715,6 @@ class _ScenarioRow extends StatelessWidget {
           ),
           Text('rev ${scenario.revision}', style: theme.textTheme.labelMedium),
           const SizedBox(width: 12),
-          OutlinedButton(
-            onPressed: disabled ? null : onRun,
-            child: const Text('Run'),
-          ),
-          const SizedBox(width: 6),
           IconButton(
             tooltip: 'Open scenario editor',
             onPressed: onOpen,

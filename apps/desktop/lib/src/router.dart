@@ -14,10 +14,19 @@ import 'shell.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Compile-time deep link for the screenshot/demo harness.
+///
+/// Production builds use `/projects`; the repository screenshot script can pass
+/// `--dart-define=KONCET_INITIAL_ROUTE=/runs/<id>`.
+const initialRoute = String.fromEnvironment(
+  'KONCET_INITIAL_ROUTE',
+  defaultValue: '/projects',
+);
+
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: '/projects',
+    initialLocation: initialRoute,
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/projects'),
       ShellRoute(

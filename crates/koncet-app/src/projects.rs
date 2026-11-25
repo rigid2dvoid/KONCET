@@ -61,6 +61,9 @@ impl App {
         let files = SourceTree::new(input.template.seed_files())?;
         let mut baseline = ScenarioPreset::HappyPath.scenario();
         baseline.build.profile = profile_for(input.template);
+        if input.template == ProjectTemplate::HttpService {
+            baseline.description = "Build and expose one simulated HTTP service.".to_string();
+        }
         let scenario = build_record(project.id, baseline, now);
         self.database
             .create_project_with_scenario(&project, &files, Some(&scenario))?;

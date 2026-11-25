@@ -189,7 +189,9 @@ class _ActiveRunIndicator extends ConsumerWidget {
               ),
               const SizedBox(width: 7),
               Text(
-                active.frame == null
+                active.finalised
+                    ? '${active.handle.scenarioName} finished'
+                    : active.frame == null
                     ? label
                     : '${active.handle.scenarioName}  ${KoncetSimClock.formatDuration(active.frame!.clockMs)}',
                 style: theme.textTheme.labelMedium?.copyWith(

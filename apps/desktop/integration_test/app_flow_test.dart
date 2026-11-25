@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -25,32 +29,37 @@ void main() {
     await _settle(tester, const Duration(milliseconds: 400));
     expect(find.text('Create project'), findsWidgets);
 
-    await tester.enterText(find.byType(TextField).at(0), 'UI smoke project');
+    await _waitFor(tester, find.text('HTTP service'));
+    await tester.tap(find.text('HTTP service'));
+    await _settle(tester, const Duration(milliseconds: 300));
+    await tester.enterText(find.byType(TextField).at(0), 'Payments API');
     await tester.enterText(
       find.byType(TextField).at(1),
-      'End-to-end integration fixture',
+      'HTTP service deployment fixture',
     );
     await _settle(tester, const Duration(milliseconds: 300));
     await tester.tap(find.text('Create project').last);
-    await _waitFor(tester, find.text('Start a simulation'));
+    await _waitFor(tester, find.text('Start a run'));
 
-    expect(find.text('UI smoke project'), findsWidgets);
+    expect(find.text('Payments API'), findsWidgets);
     expect(find.text('Happy Path'), findsWidgets);
+    await _capture(tester, '02-project-overview');
 
     await tester.tap(find.text('Open source editor'));
     await _waitFor(tester, find.text('Source editor'));
     expect(find.text('Saved'), findsWidgets);
     await tester.tap(find.byTooltip('Back to project'));
-    await _waitFor(tester, find.text('Start a simulation'));
+    await _waitFor(tester, find.text('Start a run'));
 
     await tester.tap(find.byTooltip('Open scenario editor').first);
     await _waitFor(tester, find.text('Seed policy'));
     expect(find.text('Canonical JSON'), findsOneWidget);
+    await _capture(tester, '03-scenario-editor');
     await tester.tap(find.byTooltip('Back to project'));
-    await _waitFor(tester, find.text('Start a simulation'));
+    await _waitFor(tester, find.text('Start a run'));
 
     await tester.tap(find.text('Start run'));
-    await _waitFor(tester, find.text('Build pipeline'));
+    await _waitFor(tester, find.text('Release conveyor'));
 
     await tester.tap(find.byTooltip('Simulation speed'));
     await _settle(tester, const Duration(milliseconds: 300));
@@ -66,31 +75,45 @@ void main() {
       find.text('Healthy'),
       timeout: const Duration(seconds: 15),
     );
+    await _settle(tester, const Duration(milliseconds: 500));
+    await _capture(tester, '04-live-server');
+
+    await tester.tap(find.text('Logs'));
+    await _settle(tester, const Duration(milliseconds: 400));
+    await _capture(tester, '05-logs');
+
+    await tester.tap(find.text('Metrics'));
+    await _settle(tester, const Duration(milliseconds: 400));
+    await _capture(tester, '06-metrics');
 
     await tester.tap(find.text('Stop'));
     await _waitFor(tester, find.text('Run again'));
     expect(find.text('Completed'), findsWidgets);
 
     await tester.tap(find.text('Run history').first);
-    await _waitFor(tester, find.text('UI smoke project'));
+    await _waitFor(tester, find.text('Payments API'));
+    await _capture(tester, '07-run-history');
 
     await tester.tap(find.text('Happy Path').first);
-    await _waitFor(tester, find.text('Build pipeline'));
-    await tester.tap(find.text('Inspect'));
+    await _waitFor(tester, find.text('Release conveyor'));
+    await tester.tap(find.text('Details'));
     await _settle(tester, const Duration(milliseconds: 400));
     await tester.dragUntilVisible(
       find.text('Recorded commands'),
-      find.byKey(const ValueKey('run-inspect-scroll')),
+      find.byKey(const ValueKey('run-details-scroll')),
       const Offset(0, -300),
     );
     expect(find.text('Recorded commands'), findsOneWidget);
     expect(find.text('Run history'), findsWidgets);
+    await _capture(tester, '08-run-details');
 
     await tester.tap(find.text('Settings').first);
     await _waitFor(tester, find.text('Appearance'));
     expect(find.text('Local storage'), findsOneWidget);
+    await _capture(tester, '09-settings');
     await tester.tap(find.text('Projects').first);
     await _waitFor(tester, find.text('Create project'));
+    await _capture(tester, '01-projects');
   });
 }
 
@@ -119,4 +142,22 @@ Future<void> _waitFor(
       .whereType<String>()
       .toList();
   throw TestFailure('Timed out waiting for $finder. Visible texts: $texts');
+}
+
+Future<void> _capture(WidgetTester tester, String name) async {
+  if (Platform.environment['KONCET_CAPTURE_SCREENSHOTS'] != '1') return;
+  await tester.pump();
+  final view = RendererBinding.instance.renderViews.first;
+  // ignore: invalid_use_of_protected_member
+  final layer = view.layer! as OffsetLayer;
+  final image = await layer.toImage(view.paintBounds);
+  final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  if (bytes == null) return;
+  final directory =
+      Platform.environment['KONCET_SCREENSHOT_DIR'] ??
+      '../../docs/assets/screenshots';
+  final file = File('$directory/$name.png');
+  file.parent.createSync(recursive: true);
+  file.writeAsBytesSync(bytes.buffer.asUint8List());
 }

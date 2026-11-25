@@ -14,7 +14,7 @@ fn bridge_smoke_flow() {
 
     let info = init_app_at(root.to_string_lossy().to_string(), false).unwrap();
     assert_eq!(info.schema_version, 1);
-    assert_eq!(info.app_version, "0.1.0");
+    assert_eq!(info.app_version, "0.2.0");
     assert!(info.reconciled_runs.is_empty());
 
     assert_eq!(list_templates().unwrap().len(), 2);

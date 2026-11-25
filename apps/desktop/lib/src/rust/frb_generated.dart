@@ -2464,16 +2464,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   AppInfoDto dco_decode_app_info_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7)
-      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
     return AppInfoDto(
       appVersion: dco_decode_String(arr[0]),
       engineVersion: dco_decode_String(arr[1]),
       buildCommit: dco_decode_String(arr[2]),
-      schemaVersion: dco_decode_CastedPrimitive_i_64(arr[3]),
-      platform: dco_decode_String(arr[4]),
-      dataRoot: dco_decode_String(arr[5]),
-      reconciledRuns: dco_decode_list_String(arr[6]),
+      buildDate: dco_decode_String(arr[3]),
+      schemaVersion: dco_decode_CastedPrimitive_i_64(arr[4]),
+      platform: dco_decode_String(arr[5]),
+      dataRoot: dco_decode_String(arr[6]),
+      reconciledRuns: dco_decode_list_String(arr[7]),
     );
   }
 
@@ -3793,6 +3794,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_appVersion = sse_decode_String(deserializer);
     var var_engineVersion = sse_decode_String(deserializer);
     var var_buildCommit = sse_decode_String(deserializer);
+    var var_buildDate = sse_decode_String(deserializer);
     var var_schemaVersion = sse_decode_CastedPrimitive_i_64(deserializer);
     var var_platform = sse_decode_String(deserializer);
     var var_dataRoot = sse_decode_String(deserializer);
@@ -3801,6 +3803,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       appVersion: var_appVersion,
       engineVersion: var_engineVersion,
       buildCommit: var_buildCommit,
+      buildDate: var_buildDate,
       schemaVersion: var_schemaVersion,
       platform: var_platform,
       dataRoot: var_dataRoot,
@@ -5629,6 +5632,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.appVersion, serializer);
     sse_encode_String(self.engineVersion, serializer);
     sse_encode_String(self.buildCommit, serializer);
+    sse_encode_String(self.buildDate, serializer);
     sse_encode_CastedPrimitive_i_64(self.schemaVersion, serializer);
     sse_encode_String(self.platform, serializer);
     sse_encode_String(self.dataRoot, serializer);

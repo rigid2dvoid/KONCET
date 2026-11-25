@@ -2391,6 +2391,7 @@ impl SseDecode for crate::dto::AppInfoDto {
         let mut var_appVersion = <String>::sse_decode(deserializer);
         let mut var_engineVersion = <String>::sse_decode(deserializer);
         let mut var_buildCommit = <String>::sse_decode(deserializer);
+        let mut var_buildDate = <String>::sse_decode(deserializer);
         let mut var_schemaVersion = <i64>::sse_decode(deserializer);
         let mut var_platform = <String>::sse_decode(deserializer);
         let mut var_dataRoot = <String>::sse_decode(deserializer);
@@ -2399,6 +2400,7 @@ impl SseDecode for crate::dto::AppInfoDto {
             app_version: var_appVersion,
             engine_version: var_engineVersion,
             build_commit: var_buildCommit,
+            build_date: var_buildDate,
             schema_version: var_schemaVersion,
             platform: var_platform,
             data_root: var_dataRoot,
@@ -4210,6 +4212,7 @@ impl flutter_rust_bridge::IntoDart for crate::dto::AppInfoDto {
             self.app_version.into_into_dart().into_dart(),
             self.engine_version.into_into_dart().into_dart(),
             self.build_commit.into_into_dart().into_dart(),
+            self.build_date.into_into_dart().into_dart(),
             self.schema_version.into_into_dart().into_dart(),
             self.platform.into_into_dart().into_dart(),
             self.data_root.into_into_dart().into_dart(),
@@ -5620,6 +5623,7 @@ impl SseEncode for crate::dto::AppInfoDto {
         <String>::sse_encode(self.app_version, serializer);
         <String>::sse_encode(self.engine_version, serializer);
         <String>::sse_encode(self.build_commit, serializer);
+        <String>::sse_encode(self.build_date, serializer);
         <i64>::sse_encode(self.schema_version, serializer);
         <String>::sse_encode(self.platform, serializer);
         <String>::sse_encode(self.data_root, serializer);

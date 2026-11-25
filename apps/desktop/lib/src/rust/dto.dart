@@ -11,6 +11,7 @@ class AppInfoDto {
   final String appVersion;
   final String engineVersion;
   final String buildCommit;
+  final String buildDate;
   final int schemaVersion;
   final String platform;
   final String dataRoot;
@@ -20,6 +21,7 @@ class AppInfoDto {
     required this.appVersion,
     required this.engineVersion,
     required this.buildCommit,
+    required this.buildDate,
     required this.schemaVersion,
     required this.platform,
     required this.dataRoot,
@@ -31,6 +33,7 @@ class AppInfoDto {
       appVersion.hashCode ^
       engineVersion.hashCode ^
       buildCommit.hashCode ^
+      buildDate.hashCode ^
       schemaVersion.hashCode ^
       platform.hashCode ^
       dataRoot.hashCode ^
@@ -44,6 +47,7 @@ class AppInfoDto {
           appVersion == other.appVersion &&
           engineVersion == other.engineVersion &&
           buildCommit == other.buildCommit &&
+          buildDate == other.buildDate &&
           schemaVersion == other.schemaVersion &&
           platform == other.platform &&
           dataRoot == other.dataRoot &&

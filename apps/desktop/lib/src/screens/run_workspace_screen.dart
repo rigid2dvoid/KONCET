@@ -13,6 +13,7 @@ import '../state/providers.dart';
 import '../shell.dart';
 import '../widgets/log_viewer.dart';
 import '../widgets/metrics_panel.dart';
+import '../widgets/server_board.dart';
 import '../widgets/timeline_view.dart';
 
 class RunWorkspaceScreen extends ConsumerWidget {
@@ -26,7 +27,7 @@ class RunWorkspaceScreen extends ConsumerWidget {
     final isLive =
         active != null && active.handle.runId == runId && !active.finalised;
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: isLive
           ? _LiveRunWorkspace(active: active)
           : _HistoricalRunWorkspace(runId: runId),
@@ -434,9 +435,15 @@ class _RunWorkspaceView extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             KoncetStatusBadge(
-              label: labelForResult(run.result),
-              tone: resultTone,
-              icon: Icons.assessment_outlined,
+              label: run.result == RunResultDto.unknown && data.live
+                  ? 'In progress'
+                  : labelForResult(run.result),
+              tone: run.result == RunResultDto.unknown && data.live
+                  ? KoncetStatusTone.info
+                  : resultTone,
+              icon: run.result == RunResultDto.unknown && data.live
+                  ? Icons.autorenew
+                  : Icons.assessment_outlined,
             ),
             const SizedBox(width: 16),
             KoncetSimClock(
@@ -476,40 +483,11 @@ class _RunWorkspaceView extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 12),
-        SizedBox(
-          height: 180,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 3,
-                child: KoncetSectionCard(
-                  title: 'Build pipeline',
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: data.build == null
-                      ? const Text('No build was recorded.')
-                      : KoncetPipeline(
-                          stages: [
-                            for (final stage in data.build!.stages)
-                              KoncetStageView(
-                                label: labelForStage(stage.kind),
-                                status: stageStatus(stage.status),
-                                detail: _stageDetail(stage, data.run),
-                              ),
-                          ],
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(flex: 2, child: _DeploymentSummary(data: data)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
         const TabBar(
           isScrollable: true,
           tabAlignment: TabAlignment.start,
           tabs: [
+            Tab(icon: Icon(Icons.dns_outlined, size: 18), text: 'Server'),
             Tab(
               icon: Icon(Icons.timeline_outlined, size: 18),
               text: 'Timeline',
@@ -518,7 +496,7 @@ class _RunWorkspaceView extends ConsumerWidget {
             Tab(icon: Icon(Icons.show_chart, size: 18), text: 'Metrics'),
             Tab(
               icon: Icon(Icons.inventory_2_outlined, size: 18),
-              text: 'Inspect',
+              text: 'Details',
             ),
           ],
         ),
@@ -526,97 +504,33 @@ class _RunWorkspaceView extends ConsumerWidget {
         Expanded(
           child: TabBarView(
             children: [
+              ServerBoard(
+                run: data.run,
+                build: data.build,
+                image: data.image,
+                container: data.container,
+                deployment: data.deployment,
+                events: data.events,
+                metrics: data.metrics,
+                clockMs: data.clockMs,
+                live: data.live,
+                finalised: data.finalised,
+                paused: data.paused,
+              ),
               TimelineView(events: data.events),
               LogViewer(logs: data.logs, live: data.live),
               MetricsPanel(metrics: data.metrics),
-              _InspectTab(data: data),
+              _DetailsTab(data: data),
             ],
           ),
         ),
       ],
     );
   }
-
-  static String _stageDetail(BuildStageDto stage, RunDto run) {
-    final planned = formatDurationMs(stage.plannedMs);
-    return switch (stage.status) {
-      BuildStageStatusDto.pending => 'planned $planned',
-      BuildStageStatusDto.running => 'running · planned $planned',
-      BuildStageStatusDto.succeeded =>
-        'actual ${formatDurationMs(stage.actualMs ?? stage.plannedMs)}',
-      BuildStageStatusDto.failed =>
-        '${stage.failure?.message ?? 'failed'} · after ${formatDurationMs(stage.actualMs ?? 0)}',
-      BuildStageStatusDto.skipped => 'skipped',
-    };
-  }
 }
 
-class _DeploymentSummary extends StatelessWidget {
-  const _DeploymentSummary({required this.data});
-
-  final _ViewData data;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final deployment = data.deployment;
-    final container = data.container;
-    return KoncetSectionCard(
-      title: 'Deployment',
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (deployment != null)
-                KoncetStatusBadge(
-                  label: labelForDeployment(deployment.status),
-                  tone: toneForDeployment(deployment.status),
-                  dense: true,
-                )
-              else
-                const KoncetStatusBadge(
-                  label: 'Not created',
-                  tone: KoncetStatusTone.neutral,
-                  dense: true,
-                ),
-              const SizedBox(width: 8),
-              if (container != null)
-                KoncetStatusBadge(
-                  label: labelForContainer(container.state),
-                  tone: toneForContainer(container.state),
-                  dense: true,
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (data.image != null)
-            Text(
-              '${data.image!.repository}:${data.image!.tag}',
-              style: context.mono.small,
-              overflow: TextOverflow.ellipsis,
-            ),
-          if (deployment != null)
-            Text(
-              '${deployment.serviceName}.koncet.local · uptime ${formatDurationMs(deployment.uptimeMs)}',
-              style: theme.textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
-            ),
-          if (container != null)
-            Text(
-              'Restarts ${container.restartCount} · ${container.process.state.name}',
-              style: theme.textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InspectTab extends StatelessWidget {
-  const _InspectTab({required this.data});
+class _DetailsTab extends StatelessWidget {
+  const _DetailsTab({required this.data});
 
   final _ViewData data;
 
@@ -624,7 +538,7 @@ class _InspectTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView(
-      key: const ValueKey('run-inspect-scroll'),
+      key: const ValueKey('run-details-scroll'),
       children: [
         if (data.image != null)
           KoncetSectionCard(

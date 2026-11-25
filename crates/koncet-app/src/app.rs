@@ -18,12 +18,18 @@ const BUILD_COMMIT: &str = match option_env!("KONCET_BUILD_COMMIT") {
     None => "development",
 };
 
+const BUILD_DATE: &str = match option_env!("KONCET_BUILD_DATE") {
+    Some(date) => date,
+    None => "local build",
+};
+
 /// Immutable startup information for the About and diagnostics screens.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppInfo {
     pub app_version: String,
     pub engine_version: String,
     pub build_commit: String,
+    pub build_date: String,
     pub schema_version: i64,
     pub platform: String,
     pub data_root: String,
@@ -95,6 +101,7 @@ impl App {
             app_version: self.app_version.clone(),
             engine_version: self.engine_version.clone(),
             build_commit: BUILD_COMMIT.to_string(),
+            build_date: BUILD_DATE.to_string(),
             schema_version: self.database.schema_version()?,
             platform: format!("{}-{}", std::env::consts::OS, std::env::consts::ARCH),
             data_root: self.database.paths().root().to_string_lossy().to_string(),
