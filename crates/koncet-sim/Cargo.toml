@@ -1,0 +1,16 @@
+[package]
+name = "koncet-sim"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Deterministic headless simulation engine for KONCET"
+
+[dependencies]
+koncet-domain = { path = "../koncet-domain" }
+rand.workspace = true
+rand_chacha.workspace = true
+sha2.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true

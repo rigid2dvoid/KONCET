@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=KONCET
+GenericName=Deployment simulation workbench
+Comment=Deterministic deployment simulation for Linux
+Exec=koncet
+Icon=koncet
+Terminal=false
+Categories=Development;
+Keywords=simulation;deployment;build;operations;
+StartupWMClass=dev.koncet.koncet

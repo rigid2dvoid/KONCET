@@ -1,0 +1,16 @@
+[package]
+name = "koncet-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Application services for KONCET"
+
+[dependencies]
+koncet-domain = { path = "../koncet-domain" }
+koncet-sim = { path = "../koncet-sim" }
+koncet-storage = { path = "../koncet-storage" }
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

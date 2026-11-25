@@ -1,0 +1,8 @@
+# flutter_rust_bridge code generation for the KONCET monorepo.
+# Generated Dart is committed; CI verifies that regeneration is clean.
+rust_input: crate::api
+rust_root: crates/koncet-ffi
+rust_output: crates/koncet-ffi/src/frb_generated.rs
+dart_output: apps/desktop/lib/src/rust
+type_64bit_int: true
+add_mod_to_lib: false

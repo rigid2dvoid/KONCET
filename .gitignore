@@ -1,0 +1,157 @@
+# =============================================================================
+# KONCET — repository ignore rules
+# =============================================================================
+# One root policy for the monorepo. Lockfiles, the reviewable generated bridge,
+# documentation, and test fixtures are intentionally committed.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Operating system and editor noise
+# -----------------------------------------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100/
+.Trashes/
+Thumbs.db
+desktop.ini
+
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+*.kate-swp
+.directory
+*.orig
+*.rej
+.merge_file_*
+.atom/
+.history/
+.svn/
+.buildlog/
+.swiftpm/
+*.class
+
+# -----------------------------------------------------------------------------
+# Environment and secrets
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+.envrc.local
+.direnv/
+
+# -----------------------------------------------------------------------------
+# Rust
+# -----------------------------------------------------------------------------
+**/target/
+**/*.rs.bk
+*.profraw
+*.profdata
+*.gcda
+*.gcno
+tarpaulin-report.*
+lcov.info
+coverage/
+**/test-results/
+
+# -----------------------------------------------------------------------------
+# Dart, Flutter, and pub
+# -----------------------------------------------------------------------------
+**/.dart_tool/
+**/.pub-cache/
+**/.pub/
+**/.packages
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.flutter-devtools/
+**/.flutter_tool_state
+**/.plugin_symlinks/
+**/ephemeral/
+**/build/
+**/doc/api/
+**/coverage/
+**/.widget_preview/
+**/migrate_working_dir/
+.fvm/
+app.*.symbols
+app.*.map.json
+
+# -----------------------------------------------------------------------------
+# Generated bridge — COMMITTED, do not ignore
+# -----------------------------------------------------------------------------
+# The flutter_rust_bridge output is reviewed and committed so a clean checkout
+# can build without running codegen. Only scratch copies are ignored.
+!crates/koncet-ffi/src/frb_generated.rs
+!apps/desktop/lib/src/rust/
+!apps/desktop/lib/src/rust/**
+**/frb_generated.rs.bk
+**/frb_generated.dart.bk
+
+# -----------------------------------------------------------------------------
+# Lockfiles — COMMITTED for reproducible builds
+# -----------------------------------------------------------------------------
+!Cargo.lock
+!apps/desktop/pubspec.lock
+!packages/koncet_ui/pubspec.lock
+
+# -----------------------------------------------------------------------------
+# Python tooling (SBOM and repository scripts)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# -----------------------------------------------------------------------------
+# Local runtime data, databases, and logs
+# -----------------------------------------------------------------------------
+.koncet/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+logs/
+*.log
+*.pid
+
+# -----------------------------------------------------------------------------
+# Release and packaging artifacts
+# -----------------------------------------------------------------------------
+/dist/
+/release/
+*.AppImage
+*.AppImage.zsync
+*.deb
+*.rpm
+*.snap
+*.flatpak
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.sha256
+SBOM.cdx.json
+
+# -----------------------------------------------------------------------------
+# Temporary and build leftovers
+# -----------------------------------------------------------------------------
+.tmp/
+/tmp/
+*.tmp
+*.temp
+*.bak
+*.cache
+.cache/
