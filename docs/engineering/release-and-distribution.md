@@ -34,6 +34,7 @@ versions carry the suffix consistently in all manifests.
 | --- | --- |
 | `KONCET-<version>-linux-x86_64.AppImage` | Primary portable application |
 | `KONCET-<version>-linux-x86_64.tar.gz` | Fallback bundle for FUSE-restricted systems |
+| `install.sh` | User-local installer, desktop entry, and uninstaller |
 | `SHA256SUMS` | Integrity verification |
 | `KONCET-<version>-sbom.cdx.json` | Dependency inventory (CycloneDX) |
 | `THIRD_PARTY_NOTICES.md` | Licence obligations |
@@ -79,8 +80,9 @@ Packaging rules:
 - Strip debug symbols from the shipped binary; keep a separate symbol archive if needed.
 - Bundle fonts, icons, GTK/Flutter runtime pieces allowed by their licences.
 - Do not bundle personal data, dev databases, test fixtures, or source maps.
-- AppImage desktop entry: name KONCET, categories Development/Utility, icon installed at the
-  correct sizes.
+- AppImage desktop entry: name KONCET, category Development, icon installed at 256×256.
+- `install.sh` installs under `~/.local` without `sudo`, verifies `SHA256SUMS`, writes a
+  desktop entry, and supports `--uninstall`. It must not modify application data.
 - `--appimage-extract-and-run` documented for FUSE-less environments.
 - Build number metadata includes tag and commit; no dirty builds are released.
 

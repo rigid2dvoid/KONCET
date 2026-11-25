@@ -34,9 +34,12 @@ packages by each package's `pubspec.lock`. Generated bridge code is tied to the
 ## 3. Reproduce the checks
 
 ```bash
-just bootstrap
-just check
-just e2e
+./run.sh --check      # verify Rust, Flutter, native headers, GTK 3
+./run.sh              # run from a checkout
+./run.sh --install    # build and install as ~/.local/bin/koncet
+
+just check            # maintainer quality gates
+just e2e              # Linux integration journey
 just build-release
 just package
 ```

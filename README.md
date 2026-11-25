@@ -46,13 +46,14 @@ the full deployment loop observable, deterministic, and disposable.
 
 ## Installation
 
-KONCET is distributed as a self-contained Linux desktop application. There is no installer,
-package repository, account, or daemon to set up. Pick either artifact:
+KONCET ships as a self-contained Linux desktop application. The recommended path uses the
+small user-local installer: no `sudo`, package repository, account, or daemon is involved.
 
 | Artifact | Best for |
 | --- | --- |
-| `KONCET-<version>-linux-x86_64.AppImage` | Recommended portable application |
+| `KONCET-<version>-linux-x86_64.AppImage` | Recommended application bundle |
 | `KONCET-<version>-linux-x86_64.tar.gz` | Systems where FUSE is unavailable or restricted |
+| `install.sh` | One-command user-local install, desktop entry, and uninstall |
 
 Download the latest assets from the project's GitHub Releases page. The examples below use
 `v0.1.0`; substitute the version you downloaded.
@@ -65,10 +66,40 @@ Download the latest assets from the project's GitHub Releases page. The examples
 - FUSE 2 for direct AppImage execution (otherwise use `--appimage-extract-and-run`)
 - No Docker, Kubernetes, cloud account, or network connection is required
 
-### Option A — AppImage (recommended)
+### Option A — Installer (recommended)
+
+Download the artifact, `install.sh`, and `SHA256SUMS`, then install into `~/.local`:
 
 ```bash
-# 1. Download the AppImage and SHA256SUMS, then verify what you received.
+chmod +x install.sh
+./install.sh KONCET-0.1.0-linux-x86_64.AppImage
+
+# Launch by name from now on:
+koncet
+```
+
+If the installer is in the same directory as exactly one KONCET artifact, it can find it:
+
+```bash
+./install.sh
+```
+
+The installer verifies the release checksum, installs the application under
+`~/.local/lib/koncet`, creates `~/.local/bin/koncet`, adds the icon, and writes a desktop entry
+so KONCET also appears in the application menu.
+
+Useful options:
+
+```bash
+./install.sh --prefix "$HOME/.local"       # choose another installation prefix
+./install.sh --no-desktop                  # skip the application-menu entry
+./install.sh --uninstall                   # remove the app; keep local data
+```
+
+### Option B — AppImage without the installer
+
+```bash
+# 1. Verify what you received.
 sha256sum -c SHA256SUMS --ignore-missing
 
 # 2. Make it executable and launch it.
@@ -82,15 +113,7 @@ If FUSE is unavailable on your system:
 ./KONCET-0.1.0-linux-x86_64.AppImage --appimage-extract-and-run
 ```
 
-Optional: keep KONCET on your `PATH` so it can be launched by name.
-
-```bash
-mkdir -p ~/.local/bin
-install -m 0755 KONCET-0.1.0-linux-x86_64.AppImage ~/.local/bin/koncet
-koncet
-```
-
-### Option B — `.tar.gz` fallback
+### Option C — `.tar.gz` fallback
 
 ```bash
 # 1. Verify the archive.
@@ -101,12 +124,10 @@ tar -xzf KONCET-0.1.0-linux-x86_64.tar.gz
 ./KONCET-0.1.0-linux-x86_64/koncet
 ```
 
-For a system-wide user install without touching system paths:
+Or install the extracted bundle with the same user-local installer:
 
 ```bash
-mkdir -p ~/.local/opt ~/.local/bin
-mv KONCET-0.1.0-linux-x86_64 ~/.local/opt/koncet
-ln -sf ~/.local/opt/koncet/koncet ~/.local/bin/koncet
+./install.sh --bundle KONCET-0.1.0-linux-x86_64
 koncet
 ```
 
@@ -130,22 +151,23 @@ projects, scenarios, snapshots, runs, logs, metrics, settings, and backups.**
 
 ### Upgrading
 
-Replace the AppImage or extracted bundle with the newer artifact. SQLite migrations run
-automatically at startup; a verified pre-migration backup is created before a non-empty
-database is migrated. An older application refuses a newer schema rather than downgrading it.
+Run the new installer again for the AppImage or `.tar.gz`; it replaces the installed files while
+keeping local data. SQLite migrations run automatically at startup; a verified pre-migration
+backup is created before a non-empty database is migrated. An older application refuses a
+newer schema rather than downgrading it.
 
 ### Uninstalling
 
 ```bash
-# AppImage / PATH install
-rm -f ~/.local/bin/koncet
+./install.sh --uninstall
 
-# tar.gz install
-rm -rf ~/.local/opt/koncet
-
-# Local application data (destructive)
+# Optional: remove local application data (destructive)
 rm -rf "${XDG_DATA_HOME:-$HOME/.local/share}/koncet"
 ```
+
+The uninstaller removes the executable, desktop entry, and icon. Projects, runs, backups, and
+settings are intentionally kept until you remove the data directory. If you installed an
+AppImage or extracted bundle manually, remove that file/directory instead.
 
 ### Troubleshooting
 
@@ -204,15 +226,36 @@ and [Stack selection](docs/architecture/stack.md). Verified toolchain versions a
 
 ## Build from source
 
+### Run from a checkout
+
+After the one-time toolchain setup below, a fresh checkout runs with one command:
+
+```bash
+git clone <repository-url> KONCET
+cd KONCET
+./run.sh
+```
+
+`run.sh` checks the toolchain, fetches Dart dependencies, then launches the Linux app. It does
+not require `just` or `flutter_rust_bridge_codegen` because the generated bridge is committed.
+
+```bash
+./run.sh --check      # verify Rust, Flutter, native headers, and GTK 3
+./run.sh              # development launch
+./run.sh --release    # build the release bundle and launch it
+./run.sh --install    # build and install as ~/.local/bin/koncet
+./run.sh --help
+```
+
 ### Prerequisites
 
 - Rust **1.85+** (1.100.0 verified)
 - Flutter **3.50.x** stable with Dart **3.14**
 - CMake, Ninja, Clang, `pkg-config`
 - GTK 3, X11, and Xi development headers
-- `just` and `flutter_rust_bridge_codegen` **2.13.0**
-- Python 3 for the SBOM generator
-- `curl` if `just package` needs to download `appimagetool`
+- Python 3 for the SBOM generator and release tooling
+- `curl` if packaging needs to download `appimagetool`
+- `just` and `flutter_rust_bridge_codegen` **2.13.0** only for maintainer tasks and codegen
 
 <details>
 <summary><strong>Debian / Ubuntu</strong></summary>
@@ -257,23 +300,15 @@ export PATH="$HOME/.local/share/flutter/bin:$PATH"
 flutter --version
 flutter config --enable-linux-desktop
 
-# Repository tooling
+# Maintainer tooling (optional for simply running the app)
 cargo install just --locked
 cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
 ```
 
-### Clone, build, and run
-
-```bash
-git clone <repository-url> KONCET
-cd KONCET
-just bootstrap
-just check
-just run
-```
+### Regenerate the bridge
 
 The generated bridge (`apps/desktop/lib/src/rust`, `crates/koncet-ffi/src/frb_generated.rs`)
-is committed. Regenerate it after changing the FFI surface:
+is committed, so running KONCET never needs codegen. After changing the FFI surface:
 
 ```bash
 just codegen
@@ -283,14 +318,20 @@ just codegen-check
 ### Build release artifacts
 
 ```bash
-just build-release     # Flutter Linux release bundle + Rust cdylib
-just package           # AppImage, tar.gz, SHA256SUMS, SBOM, notices
+# Without just:
+./scripts/build-release.sh
+./scripts/package-linux.sh
+
+# Or with the maintainer recipes:
+just build-release
+just package
+
 ls -lh dist/
 ```
 
-`just package` downloads `appimagetool` on first use unless `APPIMAGETOOL` points to a local
-binary. Release artifacts must be rebuilt from a clean tagged commit on the documented Ubuntu
-22.04 baseline before publishing.
+`package-linux.sh` downloads `appimagetool` on first use unless `APPIMAGETOOL` points to a
+local binary. Release artifacts must be rebuilt from a clean tagged commit on the documented
+Ubuntu 22.04 baseline before publishing.
 
 ## Development
 
@@ -303,6 +344,9 @@ just package          # release artifacts
 
 | Command | Purpose |
 | --- | --- |
+| `./run.sh` | Launch from a checkout without requiring `just` |
+| `./run.sh --check` | Verify the source-run toolchain |
+| `./run.sh --install` | Build and install as `~/.local/bin/koncet` |
 | `just bootstrap` | Fetch Rust and Dart dependencies |
 | `just fmt` | Format Rust and Dart sources |
 | `just fmt-check` | Verify formatting without modifying files |
@@ -332,8 +376,10 @@ KONCET/
 ├── packages/koncet_ui/    Shared Material 3 design system
 ├── docs/                  Product, architecture, design, engineering, project
 ├── scripts/               Version, codegen, packaging, and SBOM tooling
-├── VERSION                Single product version
-├── justfile               Developer and release recipes
+├── run.sh                One-command source launcher
+├── install.sh            User-local installer and uninstaller
+├── VERSION               Single product version
+├── justfile              Developer and release recipes
 ├── flutter_rust_bridge.yaml
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md

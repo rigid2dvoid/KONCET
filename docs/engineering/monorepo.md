@@ -27,6 +27,8 @@ KONCET/
 ├── scripts/                     version sync, codegen, packaging, SBOM
 ├── Cargo.toml                   Rust workspace root
 ├── flutter_rust_bridge.yaml     FRB inputs and generated outputs
+├── run.sh                       one-command source launcher
+├── install.sh                   user-local installer and uninstaller
 ├── justfile                     developer and release recipes
 ├── VERSION                      single product version source of truth
 ├── CHANGELOG.md

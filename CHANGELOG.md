@@ -22,6 +22,8 @@ version across the monorepo.
 - Flutter Linux desktop app: Material 3 design system, bundled Inter/JetBrains Mono, project
   flow, source editor with autosave, scenario editor, live run workspace, history, settings,
   recovery screen, quit confirmation, and window geometry persistence.
+- One-command source launcher (`run.sh`) and user-local installer (`install.sh`) with desktop
+  entry, icon, checksum verification, and uninstall support.
 - Version, codegen, test, release, packaging, checksum, notices, and SBOM tooling (`VERSION`,
   `justfile`, `scripts/`).
 - Local release artifacts verified: AppImage, `.tar.gz`, `SHA256SUMS`, CycloneDX SBOM, GPL and

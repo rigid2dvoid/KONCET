@@ -27,12 +27,13 @@ debug build using the README, `just`, and documented packages only.
 
 1. Install Flutter and Rust per pinned toolchain files.
 2. Install Linux packages from the documented list.
-3. `just bootstrap` — fetch Rust and Dart dependencies and prepare the workspace.
-4. `just run` — launch the Flutter desktop app in debug mode.
-5. `just check` — format check, lint, Rust tests, Dart analyse/tests.
-6. `just e2e` — run the Linux integration journey on a display.
-7. `just codegen` — regenerate the committed bridge after changing the FFI surface.
-8. `just build-release` / `just package` — produce and verify release artifacts.
+3. `./run.sh --check` — verify Rust, Flutter, native headers, and GTK 3.
+4. `./run.sh` — fetch Dart dependencies and launch the Flutter desktop app.
+5. `./run.sh --install` — build release and install as `~/.local/bin/koncet`.
+6. `just check` — format check, lint, Rust tests, Dart analyse/tests.
+7. `just e2e` — run the Linux integration journey on a display.
+8. `just codegen` — regenerate the committed bridge after changing the FFI surface.
+9. `just build-release` / `just package` — produce and verify release artifacts.
 
 The documented toolchain for this tree is in [Toolchain versions](toolchain.md). Generated
 bridge code is committed, so a fresh checkout can build without running codegen.

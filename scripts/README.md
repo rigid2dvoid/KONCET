@@ -13,3 +13,10 @@ Repository automation only; never shipped as part of the desktop runtime.
 
 Scripts are non-interactive and fail on error. The packaging helper downloads `appimagetool`
 only when it is not already present; set `APPIMAGETOOL` to a local binary for offline builds.
+
+The repository root also contains two user-facing helpers:
+
+| Helper | Purpose |
+| --- | --- |
+| `run.sh` | Check the toolchain, fetch dependencies, and launch from a checkout without `just` |
+| `install.sh` | Install an AppImage/`.tar.gz` or built bundle under `~/.local`, with desktop entry and uninstall |

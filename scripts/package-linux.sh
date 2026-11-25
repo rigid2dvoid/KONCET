@@ -26,6 +26,7 @@ mkdir -p "$stage/$release_name"
 cp -a "$bundle/." "$stage/$release_name/"
 cp apps/desktop/assets/licenses/GPL-3.0-or-later.txt "$stage/$release_name/LICENSE"
 cp apps/desktop/assets/licenses/THIRD_PARTY_NOTICES.md "$stage/$release_name/THIRD_PARTY_NOTICES.md"
+cp apps/desktop/packaging/koncet.png "$stage/$release_name/koncet.png"
 tar -C "$stage" -czf "$dist/$release_name.tar.gz" "$release_name"
 
 # AppImage tree. Flutter resolves data/lib relative to the executable.
@@ -56,11 +57,13 @@ ARCH=x86_64 "$appimagetool" --appimage-extract-and-run --no-appstream \
 
 cp apps/desktop/assets/licenses/THIRD_PARTY_NOTICES.md "$dist/THIRD_PARTY_NOTICES.md"
 cp apps/desktop/assets/licenses/GPL-3.0-or-later.txt "$dist/LICENSE"
+cp install.sh "$dist/install.sh"
+chmod 0755 "$dist/install.sh"
 ./scripts/generate-sbom.py "$dist/$release_name-sbom.cdx.json"
 (
   cd "$dist"
   sha256sum "$release_name.AppImage" "$release_name.tar.gz" \
-    "$release_name-sbom.cdx.json" THIRD_PARTY_NOTICES.md LICENSE \
+    "$release_name-sbom.cdx.json" THIRD_PARTY_NOTICES.md LICENSE install.sh \
     > SHA256SUMS
 )
 echo "artifacts written to $dist"
