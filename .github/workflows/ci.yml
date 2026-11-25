@@ -73,4 +73,4 @@ jobs:
         run: just codegen-check
 
       - name: Run Linux end-to-end journey
-        run: xvfb-run -a just e2e
+        run: xvfb-run -a -s "-screen 0 1600x1200x24" just e2e
