@@ -170,7 +170,8 @@ if [[ "$MODE" == "install" ]]; then
   build_release
   "$ROOT/install.sh" \
     --bundle "$ROOT/apps/desktop/build/linux/x64/release/bundle" \
-    --icon "$ROOT/apps/desktop/packaging/koncet.png"
+    --icon "$ROOT/apps/desktop/packaging/koncet.png" \
+    --version "$(tr -d '[:space:]' < "$ROOT/VERSION")"
   echo
   echo "Installed. Launch from a terminal with:  koncet"
   echo "Or open KONCET from your application menu."

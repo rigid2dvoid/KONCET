@@ -19,4 +19,4 @@ The repository root also contains two user-facing helpers:
 | Helper | Purpose |
 | --- | --- |
 | `run.sh` | Check the toolchain, fetch dependencies, and launch from a checkout without `just` |
-| `install.sh` | Install an AppImage/`.tar.gz` or built bundle under `~/.local`, with desktop entry and uninstall |
+| `install.sh` | Install an AppImage/`.tar.gz` or built bundle under `~/.local`, with desktop entry, version reporting, optional latest-release download, and uninstall |

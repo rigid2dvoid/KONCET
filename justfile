@@ -36,7 +36,13 @@ dart-test:
     cd packages/koncet_ui && flutter test
 
 e2e:
-    cd apps/desktop && flutter test integration_test -d linux
+    rm -rf /tmp/koncet-e2e
+    cd apps/desktop && XDG_DATA_HOME=/tmp/koncet-e2e flutter test integration_test/app_flow_test.dart -d linux
+
+screenshots:
+    rm -rf /tmp/koncet-screenshots
+    XDG_DATA_HOME=/tmp/koncet-screenshots cargo run -q -p koncet-app --example seed_demo
+    cd apps/desktop && XDG_DATA_HOME=/tmp/koncet-screenshots KONCET_CAPTURE_SCREENSHOTS=1 flutter test integration_test/screenshot_test.dart -d linux
 
 check: fmt-check clippy rust-test dart-analyze dart-test
 

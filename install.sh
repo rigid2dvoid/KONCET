@@ -19,6 +19,9 @@ BUNDLE=""
 ICON=""
 INSTALL_DESKTOP=1
 DO_UNINSTALL=0
+USE_LATEST=0
+ARTIFACT_VERSION=""
+REPO_SLUG="${KONCET_REPO:-rigid2dvoid/KONCET}"
 
 BIN_DIR=""
 LIB_DIR=""
@@ -26,7 +29,18 @@ APPS_DIR=""
 ICON_DIR=""
 
 usage() {
-  sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+  cat <<'EOF'
+KONCET user-local installer.
+
+  ./install.sh [ARTIFACT]          install an AppImage or .tar.gz
+  ./install.sh --latest            download and install the latest GitHub release
+  ./install.sh --bundle DIR        install an already-built Flutter bundle
+  ./install.sh --uninstall         remove installed files (data is kept)
+  ./install.sh --help              show this help
+
+Defaults to ~/.local, so no sudo is required. The installer never touches
+Docker, Kubernetes, network services, or the application's local data.
+EOF
 }
 
 die() {
@@ -58,6 +72,15 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || die "--icon requires a file"
       ICON="$2"
       shift 2
+      ;;
+    --version)
+      [[ $# -ge 2 ]] || die "--version requires a value"
+      ARTIFACT_VERSION="$2"
+      shift 2
+      ;;
+    --latest)
+      USE_LATEST=1
+      shift
       ;;
     --no-desktop)
       INSTALL_DESKTOP=0
@@ -122,6 +145,10 @@ print_path_hint() {
   esac
 }
 
+if [[ "$USE_LATEST" == "1" && ( -n "$ARTIFACT" || -n "$BUNDLE" ) ]]; then
+  die "--latest cannot be combined with an explicit artifact or bundle"
+fi
+
 if [[ "$DO_UNINSTALL" == "1" ]]; then
   rm -f "$BIN_DIR/koncet"
   rm -rf "$LIB_DIR"
@@ -154,6 +181,30 @@ verify_artifact() {
   else
     warn "SHA256SUMS was not found next to $base; skipping checksum verification"
   fi
+}
+
+# Download the latest public GitHub release. This runs only when explicitly
+# requested; the installed application never performs network access.
+download_latest() {
+  command -v curl >/dev/null 2>&1 || die "--latest requires curl"
+  local api json tag version file
+  api="https://api.github.com/repos/$REPO_SLUG/releases/latest"
+  echo "Checking latest KONCET release for $REPO_SLUG…"
+  if ! json="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$api")"; then
+    die "could not read the latest release (repository private, unavailable, or no releases yet)"
+  fi
+  tag="$(printf '%s\n' "$json" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
+  [[ -n "$tag" ]] || die "the release metadata did not include a tag"
+  version="${tag#v}"
+  ARTIFACT_VERSION="$version"
+  file="KONCET-$version-linux-x86_64.AppImage"
+  mkdir -p "$tmp_dir/latest"
+  echo "Downloading $file…"
+  curl -fL --retry 2 "https://github.com/$REPO_SLUG/releases/latest/download/$file" \
+    -o "$tmp_dir/latest/$file" || die "could not download $file"
+  curl -fL --retry 2 "https://github.com/$REPO_SLUG/releases/latest/download/SHA256SUMS" \
+    -o "$tmp_dir/latest/SHA256SUMS" || die "could not download SHA256SUMS"
+  ARTIFACT="$tmp_dir/latest/$file"
 }
 
 # Pick a single release artifact from the usual locations.
@@ -261,6 +312,7 @@ finish_install() {
   print_path_hint
   echo
   echo "KONCET installed under $PREFIX"
+  echo "  Version: ${ARTIFACT_VERSION:-unknown}"
   echo "  Launch:  koncet"
   echo "  Data:    $(data_dir)"
   if [[ "$INSTALL_DESKTOP" == "1" ]]; then
@@ -343,7 +395,10 @@ install_tar() {
   install_bundle "$bundle_dir" "$icon_path"
 }
 
-if [[ -n "$BUNDLE" ]]; then
+if [[ "$USE_LATEST" == "1" ]]; then
+  download_latest
+  install_appimage "$ARTIFACT"
+elif [[ -n "$BUNDLE" ]]; then
   install_bundle "$BUNDLE" "$ICON"
 else
   if [[ -z "$ARTIFACT" ]]; then
@@ -369,8 +424,24 @@ EOF
     install_bundle "$ARTIFACT" "$ICON"
   else
     case "$ARTIFACT" in
-      *.AppImage) install_appimage "$ARTIFACT" ;;
-      *.tar.gz) install_tar "$ARTIFACT" ;;
+      *.AppImage)
+        [[ -n "$ARTIFACT_VERSION" ]] || {
+          base="$(basename "$ARTIFACT")"
+          if [[ "$base" =~ KONCET-([0-9][^-]*)-linux ]]; then
+            ARTIFACT_VERSION="${BASH_REMATCH[1]}"
+          fi
+        }
+        install_appimage "$ARTIFACT"
+        ;;
+      *.tar.gz)
+        [[ -n "$ARTIFACT_VERSION" ]] || {
+          base="$(basename "$ARTIFACT")"
+          if [[ "$base" =~ KONCET-([0-9][^-]*)-linux ]]; then
+            ARTIFACT_VERSION="${BASH_REMATCH[1]}"
+          fi
+        }
+        install_tar "$ARTIFACT"
+        ;;
       *) die "unsupported artifact (expected .AppImage or .tar.gz): $ARTIFACT" ;;
     esac
   fi
